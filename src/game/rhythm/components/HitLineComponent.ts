@@ -1,8 +1,8 @@
-import { Component } from '../ecs/Component';
-import { Entity } from '../ecs/Entity';
-import { Color } from '../ecs/components/Color';
+import { Component } from '../../ecs/Component';
+import { Entity } from '../../ecs/Entity';
+import { Color } from '../../ecs/components/Color';
 
-export class HitLine extends Component {
+export class HitLineComponent extends Component {
   public y: number;
   public width: number;
   public height: number;

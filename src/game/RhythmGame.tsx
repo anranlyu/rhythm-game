@@ -6,9 +6,9 @@ import { ComponentManager } from './ecs/ComponentManager';
 import { SystemManager } from './ecs/SystemManager';
 import { Entity } from './ecs/Entity';
 
-import { RhythmGameState } from './rhythm/RhythmGameState';
-import { RhythmLane } from './rhythm/RhythmLane';
-import { HitLine } from './rhythm/HitLine';
+import { RhythmGameStateComponent } from './rhythm/components/RhythmGameStateComponent';
+import { RhythmLaneComponent } from './rhythm/components/RhythmLaneComponent';
+import { HitLineComponent } from './rhythm/components/HitLineComponent';
 import { RhythmNoteSystem } from './rhythm/systems/RhythmNoteSystem';
 import { RhythmInputSystem } from './rhythm/systems/RhythmInputSystem';
 import { RhythmSpawnSystem } from './rhythm/systems/RhythmSpawnSystem';
@@ -30,14 +30,18 @@ export const RhythmGame: React.FC<RhythmGameProps> = ({
 
     // Create game state entity
     const gameStateEntity = entityManager.createEntity('GameState');
-    const gameState = new RhythmGameState(gameStateEntity, width, height);
+    const gameState = new RhythmGameStateComponent(
+      gameStateEntity,
+      width,
+      height
+    );
     componentManager.addComponent(gameStateEntity, gameState);
 
     // Create lanes
     const laneEntities: Entity[] = [];
     for (let i = 0; i < 5; i++) {
       const laneEntity = entityManager.createEntity(`Lane_${i}`);
-      const lane = new RhythmLane(
+      const lane = new RhythmLaneComponent(
         laneEntity,
         i,
         gameState.laneWidth,
@@ -51,7 +55,11 @@ export const RhythmGame: React.FC<RhythmGameProps> = ({
 
     // Create hit line
     const hitLineEntity = entityManager.createEntity('HitLine');
-    const hitLine = new HitLine(hitLineEntity, gameState.hitLineY, width);
+    const hitLine = new HitLineComponent(
+      hitLineEntity,
+      gameState.hitLineY,
+      width
+    );
     componentManager.addComponent(hitLineEntity, hitLine);
 
     // Create and add systems

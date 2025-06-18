@@ -3,10 +3,10 @@ import { System } from '../../ecs/System';
 import { Entity } from '../../ecs/Entity';
 import { ComponentManager } from '../../ecs/ComponentManager';
 import { Transform } from '../../ecs/components/Transform';
-import { RhythmNote } from '../RhythmNote';
-import { RhythmLane } from '../RhythmLane';
-import { HitLine } from '../HitLine';
-import { RhythmGameState } from '../RhythmGameState';
+import { RhythmNoteComponent } from '../components/RhythmNoteComponent';
+import { RhythmLaneComponent } from '../components/RhythmLaneComponent';
+import { HitLineComponent } from '../components/HitLineComponent';
+import { RhythmGameStateComponent } from '../components/RhythmGameStateComponent';
 
 export class RhythmRenderSystem extends System {
   private componentManager: ComponentManager;
@@ -24,7 +24,7 @@ export class RhythmRenderSystem extends System {
     
     // Register required components for note rendering
     this.registerRequiredComponent(Transform);
-    this.registerRequiredComponent(RhythmNote);
+    this.registerRequiredComponent(RhythmNoteComponent);
     
     // Create layers
     this.gameLayer = new PIXI.Container();
@@ -38,7 +38,7 @@ export class RhythmRenderSystem extends System {
       text: 'Score: 0',
       style: {
         fontFamily: 'Arial',
-        fontSize: 24,
+        fontSize: 14,
         fill: 0xffffff,
       }
     });
@@ -56,7 +56,7 @@ export class RhythmRenderSystem extends System {
     this.gameLayer.removeChildren();
 
     for (const laneEntity of lanes) {
-      const lane = this.componentManager.getComponent(laneEntity, RhythmLane);
+      const lane = this.componentManager.getComponent(laneEntity, RhythmLaneComponent);
       if (!lane) continue;
 
       const graphics = new PIXI.Graphics();
@@ -71,7 +71,7 @@ export class RhythmRenderSystem extends System {
   }
 
   public renderHitLine(hitLineEntity: Entity): void {
-    const hitLine = this.componentManager.getComponent(hitLineEntity, HitLine);
+    const hitLine = this.componentManager.getComponent(hitLineEntity, HitLineComponent);
     if (!hitLine) return;
 
     const graphics = new PIXI.Graphics();
@@ -92,7 +92,7 @@ export class RhythmRenderSystem extends System {
   private updateScoreDisplay(): void {
     if (!this.scoreText || !this.gameStateEntity) return;
     
-    const gameState = this.componentManager.getComponent(this.gameStateEntity, RhythmGameState);
+    const gameState = this.componentManager.getComponent(this.gameStateEntity, RhythmGameStateComponent);
     const currentScore = gameState ? gameState.score : 0;
     
     this.scoreText.text = `Score: ${currentScore}`;
@@ -101,7 +101,7 @@ export class RhythmRenderSystem extends System {
   private renderNotes(): void {
     // Clean up graphics for inactive entities
     for (const [entity, graphics] of this.renderedEntities) {
-      const note = this.componentManager.getComponent(entity, RhythmNote);
+      const note = this.componentManager.getComponent(entity, RhythmNoteComponent);
       if (!note || !note.isActive) {
         this.gameLayer.removeChild(graphics);
         graphics.destroy();
@@ -112,7 +112,7 @@ export class RhythmRenderSystem extends System {
     // Render active notes
     for (const entity of this.entities) {
       const transform = this.componentManager.getComponent(entity, Transform);
-      const note = this.componentManager.getComponent(entity, RhythmNote);
+      const note = this.componentManager.getComponent(entity, RhythmNoteComponent);
 
       if (!transform || !note || !note.isActive) continue;
 

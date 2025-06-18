@@ -4,9 +4,9 @@ import { ComponentManager } from '../../ecs/ComponentManager';
 import { EventManager } from '../../events/EventManager';
 import { KeyboardEvent } from '../../events/KeyboardEvent';
 import { Transform } from '../../ecs/components/Transform';
-import { RhythmNote } from '../RhythmNote';
-import { RhythmGameState } from '../RhythmGameState';
-import { HitLine } from '../HitLine';
+import { RhythmNoteComponent } from '../components/RhythmNoteComponent';
+import { RhythmGameStateComponent } from '../components/RhythmGameStateComponent';
+import { HitLineComponent } from '../components/HitLineComponent';
 import type { EventListener } from '../../events/EventListener';
 import type { Event } from '../../events/Event';
 
@@ -23,7 +23,7 @@ export class RhythmInputSystem extends System implements EventListener {
     
     // Register required components for input handling
     this.registerRequiredComponent(Transform);
-    this.registerRequiredComponent(RhythmNote);
+    this.registerRequiredComponent(RhythmNoteComponent);
     
     // Subscribe to keyboard events
     this.eventManager.subscribe(KeyboardEvent.KEY_PRESSED, this);
@@ -49,8 +49,8 @@ export class RhythmInputSystem extends System implements EventListener {
   private handleLaneInput(laneIndex: number): void {
     if (!this.gameStateEntity || !this.hitLineEntity) return;
 
-    const gameState = this.componentManager.getComponent(this.gameStateEntity, RhythmGameState);
-    const hitLine = this.componentManager.getComponent(this.hitLineEntity, HitLine);
+    const gameState = this.componentManager.getComponent(this.gameStateEntity, RhythmGameStateComponent);
+    const hitLine = this.componentManager.getComponent(this.hitLineEntity, HitLineComponent);
 
     if (!gameState || !hitLine) return;
 
@@ -59,7 +59,7 @@ export class RhythmInputSystem extends System implements EventListener {
     let closestDistance = Infinity;
 
     for (const entity of this.entities) {
-      const note = this.componentManager.getComponent(entity, RhythmNote);
+      const note = this.componentManager.getComponent(entity, RhythmNoteComponent);
       const transform = this.componentManager.getComponent(entity, Transform);
 
       if (!note || !transform || !note.isActive || note.lane !== laneIndex) continue;
@@ -75,7 +75,7 @@ export class RhythmInputSystem extends System implements EventListener {
     }
 
     if (hitNote) {
-      const note = this.componentManager.getComponent(hitNote, RhythmNote);
+      const note = this.componentManager.getComponent(hitNote, RhythmNoteComponent);
       if (note) {
         note.markAsHit();
         gameState.addScore(1);
@@ -89,7 +89,7 @@ export class RhythmInputSystem extends System implements EventListener {
   public update(): void {
     // Clean up inactive notes
     for (const entity of this.entities) {
-      const note = this.componentManager.getComponent(entity, RhythmNote);
+      const note = this.componentManager.getComponent(entity, RhythmNoteComponent);
       if (note && !note.isActive) {
         this.removeEntity(entity);
       }

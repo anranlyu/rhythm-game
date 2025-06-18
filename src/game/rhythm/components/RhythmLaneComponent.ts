@@ -1,8 +1,8 @@
-import { Component } from '../ecs/Component';
-import { Entity } from '../ecs/Entity';
-import { Color } from '../ecs/components/Color';
+import { Component } from '../../ecs/Component';
+import { Entity } from '../../ecs/Entity';
+import { Color } from '../../ecs/components/Color';
 
-export class RhythmLane extends Component {
+export class RhythmLaneComponent extends Component {
   public laneIndex: number; // 0-4 (lanes 1-5)
   public width: number;
   public height: number;

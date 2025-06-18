@@ -2,7 +2,7 @@ import { System } from '../../ecs/System';
 import { ComponentManager } from '../../ecs/ComponentManager';
 import { Transform } from '../../ecs/components/Transform';
 import { Vector2 } from '../../ecs/components/Vector2';
-import { RhythmNote } from '../RhythmNote';
+import { RhythmNoteComponent } from '../components/RhythmNoteComponent';
 
 export class RhythmNoteSystem extends System {
   private componentManager: ComponentManager;
@@ -11,13 +11,13 @@ export class RhythmNoteSystem extends System {
     super();
     this.componentManager = ComponentManager.getInstance();
     this.registerRequiredComponent(Transform);
-    this.registerRequiredComponent(RhythmNote);
+    this.registerRequiredComponent(RhythmNoteComponent);
   }
 
   public update(deltaTime: number): void {
     for (const entity of this.entities) {
       const transform = this.componentManager.getComponent(entity, Transform);
-      const note = this.componentManager.getComponent(entity, RhythmNote);
+      const note = this.componentManager.getComponent(entity, RhythmNoteComponent);
 
       if (!transform || !note || !note.isActive) continue;
 

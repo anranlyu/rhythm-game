@@ -1,7 +1,7 @@
-import { Component } from '../ecs/Component';
-import { Entity } from '../ecs/Entity';
+import { Component } from '../../ecs/Component';
+import { Entity } from '../../ecs/Entity';
 
-export class RhythmGameState extends Component {
+export class RhythmGameStateComponent extends Component {
   public score: number;
   public noteSpawnTimer: number;
   public noteSpawnInterval: number; // milliseconds
@@ -15,7 +15,7 @@ export class RhythmGameState extends Component {
     super(entity);
     this.score = 0;
     this.noteSpawnTimer = 0;
-    this.noteSpawnInterval = 1000; // spawn a note every 1 second
+    this.noteSpawnInterval = 6000; // spawn a note every 1 second
     this.gameWidth = gameWidth;
     this.gameHeight = gameHeight;
     this.laneWidth = gameWidth / 5; // 5 lanes
@@ -40,4 +40,4 @@ export class RhythmGameState extends Component {
     this.noteSpawnTimer = 0;
     this.isGameRunning = true;
   }
-} 
+}

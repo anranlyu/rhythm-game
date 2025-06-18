@@ -1,8 +1,8 @@
-import { Component } from '../ecs/Component';
-import { Entity } from '../ecs/Entity';
-import { Color } from '../ecs/components/Color';
+import { Component } from '../../ecs/Component';
+import { Entity } from '../../ecs/Entity';
+import { Color } from '../../ecs/components/Color';
 
-export class RhythmNote extends Component {
+export class RhythmNoteComponent extends Component {
   public lane: number; // 0-4 (lanes 1-5)
   public color: Color;
   public speed: number;
@@ -10,7 +10,7 @@ export class RhythmNote extends Component {
   public isHit: boolean;
   public isActive: boolean;
 
-  constructor(entity: Entity, lane: number, color?: Color, speed: number = 200, size: number = 50) {
+  constructor(entity: Entity, lane: number, color?: Color, speed: number = 50, size: number = 50) {
     super(entity);
     this.lane = lane;
     this.color = color || this.getDefaultColorForLane(lane);

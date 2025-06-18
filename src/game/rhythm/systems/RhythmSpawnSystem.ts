@@ -5,8 +5,8 @@ import { ComponentManager } from '../../ecs/ComponentManager';
 import { SystemManager } from '../../ecs/SystemManager';
 import { Transform } from '../../ecs/components/Transform';
 import { Vector2 } from '../../ecs/components/Vector2';
-import { RhythmNote } from '../RhythmNote';
-import { RhythmGameState } from '../RhythmGameState';
+import { RhythmNoteComponent } from '../components/RhythmNoteComponent';
+import { RhythmGameStateComponent } from '../components/RhythmGameStateComponent';
 
 export class RhythmSpawnSystem extends System {
   private componentManager: ComponentManager;
@@ -26,7 +26,7 @@ export class RhythmSpawnSystem extends System {
   public update(deltaTime: number): void {
     if (!this.gameStateEntity) return;
 
-    const gameState = this.componentManager.getComponent(this.gameStateEntity, RhythmGameState);
+    const gameState = this.componentManager.getComponent(this.gameStateEntity, RhythmGameStateComponent);
     if (!gameState || !gameState.isGameRunning) return;
 
     // Update spawn timer
@@ -39,7 +39,7 @@ export class RhythmSpawnSystem extends System {
     }
   }
 
-  private spawnRandomNote(gameState: RhythmGameState): void {
+  private spawnRandomNote(gameState: RhythmGameStateComponent): void {
     // Choose random lane (0-4)
     const randomLane = Math.floor(Math.random() * 5);
     
@@ -53,7 +53,7 @@ export class RhythmSpawnSystem extends System {
     this.componentManager.addComponent(noteEntity, transform);
     
     // Add rhythm note component
-    const note = new RhythmNote(noteEntity, randomLane);
+    const note = new RhythmNoteComponent(noteEntity, randomLane);
     this.componentManager.addComponent(noteEntity, note);
 
     // Notify SystemManager about the new entity
