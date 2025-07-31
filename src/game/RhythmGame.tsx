@@ -5,14 +5,13 @@ import { EntityManager } from './ecs/EntityManager';
 import { ComponentManager } from './ecs/ComponentManager';
 import { SystemManager } from './ecs/SystemManager';
 import { Entity } from './ecs/Entity';
-
-import { RhythmGameStateComponent } from './rhythm/components/RhythmGameStateComponent';
-import { RhythmLaneComponent } from './rhythm/components/RhythmLaneComponent';
-import { HitLineComponent } from './rhythm/components/HitLineComponent';
-import { RhythmNoteSystem } from './rhythm/systems/RhythmNoteSystem';
-import { RhythmInputSystem } from './rhythm/systems/RhythmInputSystem';
-import { RhythmSpawnSystem } from './rhythm/systems/RhythmSpawnSystem';
-import { RhythmRenderSystem } from './rhythm/systems/RhythmRenderSystem';
+import { HitLineComponent } from './rhythmGame/components/HitLineComponent';
+import { RhythmGameStateComponent } from './rhythmGame/components/RhythmGameStateComponent';
+import { RhythmLaneComponent } from './rhythmGame/components/RhythmLaneComponent';
+import { RhythmInputSystem } from './rhythmGame/systems/RhythmInputSystem';
+import { RhythmNoteSystem } from './rhythmGame/systems/RhythmNoteSystem';
+import { RhythmRenderSystem } from './rhythmGame/systems/RhythmRenderSystem';
+import { RhythmSpawnSystem } from './rhythmGame/systems/RhythmSpawnSystem';
 
 interface RhythmGameProps {
   width?: number;
@@ -123,13 +122,7 @@ export const RhythmGame: React.FC<RhythmGameProps> = ({
           borderRadius: '5px',
           textAlign: 'center',
         }}
-      >
-        <h3>Controls:</h3>
-        <p>
-          Lane 1: Press '1' | Lane 2: Press '2' | Lane 3: Press '3' | Lane 4:
-          Press '4' | Lane 5: Press '5'
-        </p>
-      </div>
+      ></div>
     </div>
   );
 };

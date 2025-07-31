@@ -1,6 +1,5 @@
-import React from 'react';
-import { RhythmGame } from './game/RhythmGame';
 import './App.css';
+import { RhythmGame } from './game/RhythmGame';
 
 function App() {
   return <RhythmGame width={500} height={600} />;

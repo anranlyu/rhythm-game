@@ -34,11 +34,11 @@ export abstract class System {
 
   public abstract update(deltaTime: number): void;
 
-  public onComponentAdded(entity: Entity, component: Component): void {
+  public onComponentAdded(_entity: Entity, _component: Component): void {
     // Override in derived classes if needed
   }
 
-  public onComponentRemoved(entity: Entity, component: Component): void {
+  public onComponentRemoved(_entity: Entity, _component: Component): void {
     // Override in derived classes if needed
   }
 } 
