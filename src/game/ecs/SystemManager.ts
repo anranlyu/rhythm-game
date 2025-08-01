@@ -89,7 +89,7 @@ export class SystemManager {
   }
 
   private entityMatchesSystem(entity: Entity, system: System): boolean {
-    const requiredComponents = (system as any).requiredComponents || [];
+    const requiredComponents = system.requiredComponents || [];
     
     for (const componentType of requiredComponents) {
       if (!this.componentManager.hasComponent(entity, componentType)) {

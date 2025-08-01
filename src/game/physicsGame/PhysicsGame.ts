@@ -109,10 +109,10 @@ export class PhysicsGame {
 
     // Create physics body for player
     const playerBody = Bodies.rectangle(startX, startY, 50, 50, {
-      density: 0.1, // MUCH higher density for dramatic physics
+      density: 0.1, // higher density for dramatic physics
       friction: 0.1,
-      restitution: 0.2, // More bouncy
-      frictionAir: 0.01 // Less air resistance
+      restitution: 0.1, // bouncy
+      frictionAir: 0.03 // air resistance
     });
 
     // Add components

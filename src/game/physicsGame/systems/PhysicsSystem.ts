@@ -3,7 +3,6 @@ import { System } from '../../ecs/System';
 import { ComponentManager } from '../../ecs/ComponentManager';
 import { Transform } from '../../ecs/components/Transform';
 import { PhysicsBodyComponent } from '../components/PhysicsBodyComponent';
-import { PlayerComponent } from '../components/PlayerComponent';
 import { Vector2 } from '../../ecs/components/Vector2';
 
 export class PhysicsSystem extends System {
@@ -16,9 +15,9 @@ export class PhysicsSystem extends System {
     super();
     this.componentManager = ComponentManager.getInstance();
     
-    // Create engine with proper gravity for jumping game
+    // matter engine
     this.engine = Engine.create();
-    this.engine.gravity.y = 1.0; // Normal gravity
+    this.engine.gravity.y = 1.0;
     this.engine.gravity.x = 0;
     this.world = this.engine.world;
     
@@ -67,20 +66,40 @@ export class PhysicsSystem extends System {
 
   private handlePlayerCollision(playerBody: Body, otherBody: Body): void {
     // Check if player is landing on top of the other body (not side collision)
-    const playerBottom = playerBody.position.y + 25; // Half player height
     const otherTop = otherBody.bounds.min.y; // Top of the other body
     
-    // Only consider grounded if player is above the platform and moving downward slowly (landed)
-    if (playerBottom >= otherTop - 5 && playerBottom <= otherTop + 15) {
+    // Check if player is above the platform (landing on top)
+    if (this.isPlayerOnTopOfBody(playerBody, otherBody)) {
       const playerEntity = this.findEntityByBody(playerBody);
       if (playerEntity) {
         const physicsComponent = this.componentManager.getComponent(playerEntity, PhysicsBodyComponent);
-        if (physicsComponent && Math.abs(playerBody.velocity.y) < 2) { // Nearly stopped vertically
-          physicsComponent.setGrounded(true);
-          console.log('Player landed on surface - grounded!', 'Player Y:', playerBody.position.y, 'Surface top:', otherTop);
+        if (physicsComponent) {
+          // More lenient velocity check - allow grounding even with some downward velocity
+          // This fixes the issue where player stays yellow when landing on platforms
+          if (playerBody.velocity.y >= -5) { // Allow grounding if not moving up too fast
+            physicsComponent.setGrounded(true);
+            console.log('Player landed on surface - grounded!', 'Player Y:', playerBody.position.y, 'Surface top:', otherTop, 'Velocity Y:', playerBody.velocity.y);
+          }
         }
       }
     }
+  }
+
+  private isPlayerOnTopOfBody(playerBody: Body, otherBody: Body): boolean {
+    const playerBottom = playerBody.position.y + 25; // Half player height
+    const otherTop = otherBody.bounds.min.y; // Top of the other body
+    const otherLeft = otherBody.bounds.min.x;
+    const otherRight = otherBody.bounds.max.x;
+    const playerLeft = playerBody.bounds.min.x;
+    const playerRight = playerBody.bounds.max.x;
+    
+    // Check if player is above the platform
+    const isAbove = playerBottom >= otherTop - 5 && playerBottom <= otherTop + 15;
+    
+    // Check if player is horizontally aligned with the platform
+    const isAligned = playerRight > otherLeft && playerLeft < otherRight;
+    
+    return isAbove && isAligned;
   }
 
   private handlePlayerCollisionEnd(playerBody: Body, otherBody: Body): void {
@@ -97,11 +116,8 @@ export class PhysicsSystem extends System {
           
           for (const body of allBodies) {
             if (body !== playerBody && this.areColliding(playerBody, body)) {
-              const playerBottom = playerBody.position.y + 25;
-              const bodyTop = body.bounds.min.y;
-              
-              // If still on top of something
-              if (playerBottom >= bodyTop - 5 && playerBottom <= bodyTop + 15) {
+              // Use the same improved collision detection logic
+              if (this.isPlayerOnTopOfBody(playerBody, body)) {
                 stillGrounded = true;
                 break;
               }

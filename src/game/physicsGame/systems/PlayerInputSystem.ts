@@ -128,18 +128,16 @@ export class PlayerInputSystem extends System implements EventListener {
         }
       }
 
-      // TEMPORARY: Add simple ground detection as fallback while debugging collision system
+      // Simple fallback ground detection
       const gameState = this.componentManager.getComponent(this.gameStateEntity!, PhysicsGameStateComponent);
-      if (gameState) {
+      if (gameState && !physicsBody.isOnGround()) {
         const groundY = gameState.getGroundY();
         const playerY = physicsBody.body.position.y;
         
         // Simple ground detection
         if (playerY >= groundY - 100) {
-          if (!physicsBody.isOnGround()) {
-            console.log('Fallback ground detection - setting grounded at Y:', playerY);
-            physicsBody.setGrounded(true);
-          }
+          console.log('Fallback ground detection - setting grounded at Y:', playerY);
+          physicsBody.setGrounded(true);
         }
       }
       
