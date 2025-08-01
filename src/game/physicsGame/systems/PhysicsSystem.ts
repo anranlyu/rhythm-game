@@ -3,6 +3,7 @@ import { System } from '../../ecs/System';
 import { ComponentManager } from '../../ecs/ComponentManager';
 import { Transform } from '../../ecs/components/Transform';
 import { PhysicsBodyComponent } from '../components/PhysicsBodyComponent';
+import { AnimationComponent } from '../components/AnimationComponent';
 import { Vector2 } from '../../ecs/components/Vector2';
 
 export class PhysicsSystem extends System {
@@ -73,11 +74,21 @@ export class PhysicsSystem extends System {
       const playerEntity = this.findEntityByBody(playerBody);
       if (playerEntity) {
         const physicsComponent = this.componentManager.getComponent(playerEntity, PhysicsBodyComponent);
+        const animationComponent = this.componentManager.getComponent(playerEntity, AnimationComponent);
+        
         if (physicsComponent) {
           // More lenient velocity check - allow grounding even with some downward velocity
           // This fixes the issue where player stays yellow when landing on platforms
           if (playerBody.velocity.y >= -5) { // Allow grounding if not moving up too fast
+            const wasGrounded = physicsComponent.isOnGround();
             physicsComponent.setGrounded(true);
+            
+            // Trigger landing animation if player wasn't grounded before
+            if (!wasGrounded && animationComponent) {
+              animationComponent.startLandingAnimation(300); // 300ms landing animation
+              console.log('🎬 LANDING ANIMATION TRIGGERED! Player landed on surface!');
+            }
+            
             console.log('Player landed on surface - grounded!', 'Player Y:', playerBody.position.y, 'Surface top:', otherTop, 'Velocity Y:', playerBody.velocity.y);
           }
         }

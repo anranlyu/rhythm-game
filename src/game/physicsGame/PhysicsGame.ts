@@ -8,9 +8,11 @@ import { Vector2 } from '../ecs/components/Vector2';
 import { PhysicsSystem } from './systems/PhysicsSystem';
 import { PhysicsRenderSystem } from './systems/PhysicsRenderSystem';
 import { PlayerInputSystem } from './systems/PlayerInputSystem';
+import { AnimationSystem } from './systems/AnimationSystem';
 import { PhysicsBodyComponent } from './components/PhysicsBodyComponent';
 import { PlayerComponent } from './components/PlayerComponent';
 import { PhysicsGameStateComponent } from './components/PhysicsGameStateComponent';
+import { AnimationComponent } from './components/AnimationComponent';
 
 export class PhysicsGame {
   private entityManager: EntityManager;
@@ -19,6 +21,7 @@ export class PhysicsGame {
   private physicsSystem: PhysicsSystem;
   private renderSystem: PhysicsRenderSystem;
   private inputSystem: PlayerInputSystem;
+  private animationSystem: AnimationSystem;
   private app: PIXI.Application;
   private gameWidth: number;
   private gameHeight: number;
@@ -40,11 +43,13 @@ export class PhysicsGame {
     this.physicsSystem = new PhysicsSystem();
     this.renderSystem = new PhysicsRenderSystem(app);
     this.inputSystem = new PlayerInputSystem();
+    this.animationSystem = new AnimationSystem();
 
     // Add systems to system manager
     this.systemManager.addSystem(this.physicsSystem);
     this.systemManager.addSystem(this.renderSystem);
     this.systemManager.addSystem(this.inputSystem);
+    this.systemManager.addSystem(this.animationSystem);
   }
 
   public async initialize(): Promise<void> {
@@ -67,7 +72,7 @@ export class PhysicsGame {
     this.createPlatforms(gameState);
 
     // Create invisible walls to prevent player from leaving screen
-    this.createBoundaryWalls(gameState);
+    this.createBoundaryWalls();
 
     console.log('Physics Game initialized successfully!');
   }
@@ -119,10 +124,12 @@ export class PhysicsGame {
     const transform = new Transform(playerEntity, new Vector2(startX, startY));
     const physicsBody = new PhysicsBodyComponent(playerEntity, playerBody);
     const player = new PlayerComponent(playerEntity, -12, 8); // Reasonable jump force
+    const animation = new AnimationComponent(playerEntity);
 
     this.componentManager.addComponent(playerEntity, transform);
     this.componentManager.addComponent(playerEntity, physicsBody);
     this.componentManager.addComponent(playerEntity, player);
+    this.componentManager.addComponent(playerEntity, animation);
 
     // Add to physics world only - ECS will handle adding to systems automatically
     this.physicsSystem.addBody(playerBody, true); // Mark as player body
@@ -163,7 +170,7 @@ export class PhysicsGame {
     });
   }
 
-  private createBoundaryWalls(gameState: PhysicsGameStateComponent): void {
+  private createBoundaryWalls(): void {
     const wallThickness = 50;
     
     // Left wall

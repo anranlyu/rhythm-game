@@ -4,6 +4,7 @@ import { ComponentManager } from '../../ecs/ComponentManager';
 import { Transform } from '../../ecs/components/Transform';
 import { PhysicsBodyComponent } from '../components/PhysicsBodyComponent';
 import { PlayerComponent } from '../components/PlayerComponent';
+import { AnimationComponent } from '../components/AnimationComponent';
 import { PhysicsGameStateComponent } from '../components/PhysicsGameStateComponent';
 import * as PIXI from 'pixi.js';
 
@@ -128,6 +129,7 @@ export class PhysicsRenderSystem extends System {
             const transform = this.componentManager.getComponent(entity, Transform);
             const physicsBody = this.componentManager.getComponent(entity, PhysicsBodyComponent);
             const player = this.componentManager.getComponent(entity, PlayerComponent);
+            const animationComponent = this.componentManager.getComponent(entity, AnimationComponent);
 
             if (!transform || !physicsBody) continue;
 
@@ -152,7 +154,13 @@ export class PhysicsRenderSystem extends System {
                 graphics.lineStyle(2, 0x000000);
                 graphics.drawRect(-25, -25, 50, 50); // Player is 50x50 pixels
                 graphics.endFill();
-            
+                
+                // Add a simple face
+                graphics.beginFill(0x000000);
+                graphics.drawCircle(-8, -8, 3);
+                graphics.drawCircle(8, -8, 3);
+                graphics.drawRect(-5, 5, 10, 3);
+                graphics.endFill();
             } else {
                 // Render other physics objects as gray rectangles
                 const body = physicsBody.body;
@@ -170,6 +178,27 @@ export class PhysicsRenderSystem extends System {
             graphics.x = transform.position.x;
             graphics.y = transform.position.y;
             graphics.rotation = transform.rotation;
+            
+            // Apply animation effects if available
+            if (animationComponent && animationComponent.isAnimating()) {
+                const scaleX = animationComponent.getCurrentScaleX();
+                const scaleY = animationComponent.getCurrentScaleY();
+                const alpha = animationComponent.getCurrentAlpha();
+                const rotation = animationComponent.getCurrentRotation();
+                
+                graphics.scale.set(scaleX, scaleY);
+                graphics.alpha = alpha;
+                graphics.rotation += rotation;
+                
+                // Only log occasionally to avoid spam
+                if (Math.random() < 0.01) { // 1% chance to log
+                    console.log(`Animation - ScaleX: ${scaleX.toFixed(2)}, ScaleY: ${scaleY.toFixed(2)}, Alpha: ${alpha.toFixed(2)}`);
+                }
+            } else {
+                // Reset to default values when not animating
+                graphics.scale.set(1, 1);
+                graphics.alpha = 1;
+            }
         }
         } catch (error) {
             console.error('Error rendering physics objects:', error);

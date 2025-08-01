@@ -5,6 +5,7 @@ import { EventManager } from '../../events/EventManager';
 import { KeyboardEvent } from '../../events/KeyboardEvent';
 import { PlayerComponent } from '../components/PlayerComponent';
 import { PhysicsBodyComponent } from '../components/PhysicsBodyComponent';
+import { AnimationComponent } from '../components/AnimationComponent';
 import { PhysicsGameStateComponent } from '../components/PhysicsGameStateComponent';
 import { Body } from 'matter-js';
 import type { EventListener } from '../../events/EventListener';
@@ -64,6 +65,7 @@ export class PlayerInputSystem extends System implements EventListener {
     for (const entity of this.entities) {
       const player = this.componentManager.getComponent(entity, PlayerComponent);
       const physicsBody = this.componentManager.getComponent(entity, PhysicsBodyComponent);
+      const animationComponent = this.componentManager.getComponent(entity, AnimationComponent);
 
       if (!player || !physicsBody) continue;
 
@@ -78,6 +80,13 @@ export class PlayerInputSystem extends System implements EventListener {
 
         player.performJump();
         gameState.incrementJumps();
+        
+        // Trigger jump animation
+        if (animationComponent) {
+          animationComponent.startJumpAnimation(200); // 200ms jump animation
+          console.log('🚀 JUMP ANIMATION TRIGGERED! Player jumped!');
+        }
+        
         console.log(`Jump! Total jumps: ${gameState.playerJumps}`);
         break; // Only jump with first valid player
       }
