@@ -152,13 +152,7 @@ export class PhysicsRenderSystem extends System {
                 graphics.lineStyle(2, 0x000000);
                 graphics.drawRect(-25, -25, 50, 50); // Player is 50x50 pixels
                 graphics.endFill();
-                
-                // Add a simple face
-                graphics.beginFill(0x000000);
-                graphics.drawCircle(-8, -8, 3);
-                graphics.drawCircle(8, -8, 3);
-                graphics.drawRect(-5, 5, 10, 3);
-                graphics.endFill();
+            
             } else {
                 // Render other physics objects as gray rectangles
                 const body = physicsBody.body;
