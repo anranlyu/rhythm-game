@@ -63,4 +63,8 @@ export class EntityManager {
     this.entities.clear();
     this.entitiesByName.clear();
   }
+
+  public cleanup(): void {
+    this.clear();
+  }
 } 

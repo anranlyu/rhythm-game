@@ -33,6 +33,14 @@ export class SystemManager {
     }
   }
 
+  public cleanup(): void {
+    this.systems = [];
+  }
+
+  public update(deltaTime: number): void {
+    this.updateSystems(deltaTime);
+  }
+
   public updateSystems(deltaTime: number): void {
     for (const system of this.systems) {
       const systemName = system.constructor.name;
@@ -81,7 +89,7 @@ export class SystemManager {
   }
 
   private entityMatchesSystem(entity: Entity, system: System): boolean {
-    const requiredComponents = (system as System).requiredComponents || [];
+    const requiredComponents = (system as any).requiredComponents || [];
     
     for (const componentType of requiredComponents) {
       if (!this.componentManager.hasComponent(entity, componentType)) {

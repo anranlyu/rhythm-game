@@ -1,8 +1,6 @@
 import * as PIXI from 'pixi.js';
-import { ComponentManager } from './ecs/ComponentManager';
-import { EntityManager } from './ecs/EntityManager';
-import { SystemManager } from './ecs/SystemManager';
 import { GameEngine } from './GameEngine';
+import { PhysicsGame as PhysicsGameClass } from './physicsGame/PhysicsGame';
 
 interface PhysicsGameProps {
   width: number;
@@ -10,23 +8,33 @@ interface PhysicsGameProps {
 }
 
 export const PhysicsGame = ({ width, height }: PhysicsGameProps) => {
-  const initializeGame = (app: PIXI.Application) => {
-    const entityManager = EntityManager.getInstance();
-    const componentManager = ComponentManager.getInstance();
-    const systemManager = SystemManager.getInstance();
+  let physicsGame: PhysicsGameClass | null = null;
+
+  const initializeGame = async (app: PIXI.Application) => {
+    try {
+      physicsGame = new PhysicsGameClass(app);
+      await physicsGame.initialize();
+      console.log('Physics game initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize physics game:', error);
+    }
   };
 
   const updateGame = (deltaTime: number) => {
-    const systemManager = SystemManager.getInstance();
-    systemManager.updateSystems(deltaTime);
+    if (physicsGame) {
+      physicsGame.update(deltaTime);
+    }
   };
 
   return (
     <div>
+      <h2 style={{ color: 'white', textAlign: 'center', margin: '10px 0' }}>
+        Physics Jump Demo
+      </h2>
       <GameEngine
         width={width}
         height={height}
-        backgroundColor={0x222222}
+        backgroundColor={0x1a1a1a}
         onInitialize={initializeGame}
         onUpdate={updateGame}
       />

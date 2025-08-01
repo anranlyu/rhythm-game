@@ -42,7 +42,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
       if (!canvasRef.current) return;
 
       try {
-        // Create PIXI application
+        // Create PIXI application with better WebGL handling
         const app = new PIXI.Application();
         await app.init({
           width,
@@ -52,6 +52,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
           antialias: true,
           resolution: window.devicePixelRatio || 1,
           autoDensity: true,
+          preference: 'webgl',
         });
 
         appRef.current = app;

@@ -1,9 +1,15 @@
 import { Entity } from './Entity';
 import { Component } from './Component';
 
+interface SystemNotifier {
+  notifyComponentAdded(entity: Entity, component: Component): void;
+  notifyComponentRemoved(entity: Entity, component: Component): void;
+}
+
 export class ComponentManager {
   private static instance: ComponentManager;
   private components: Map<number, Map<string, Component>> = new Map();
+  private systemNotifier: SystemNotifier | null = null;
 
   private constructor() {}
 
@@ -12,6 +18,10 @@ export class ComponentManager {
       ComponentManager.instance = new ComponentManager();
     }
     return ComponentManager.instance;
+  }
+
+  public setSystemNotifier(systemNotifier: SystemNotifier): void {
+    this.systemNotifier = systemNotifier;
   }
 
   public addComponent<T extends Component>(entity: Entity, component: T): T {
@@ -24,6 +34,11 @@ export class ComponentManager {
     
     entityComponents.set(componentType, component);
     component.onAdd();
+    
+    // Notify SystemManager about component addition
+    if (this.systemNotifier) {
+      this.systemNotifier.notifyComponentAdded(entity, component);
+    }
     
     return component;
   }
@@ -50,6 +65,11 @@ export class ComponentManager {
     if (component) {
       component.onRemove();
       entityComponents.delete(componentType.name);
+      
+      // Notify SystemManager about component removal
+      if (this.systemNotifier) {
+        this.systemNotifier.notifyComponentRemoved(entity, component);
+      }
     }
   }
 

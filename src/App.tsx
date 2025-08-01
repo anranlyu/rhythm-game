@@ -1,8 +1,8 @@
 import './App.css';
-import { RhythmGame } from './game/RhythmGame';
+import { PhysicsGame } from './game/PhysicsGame';
 
 function App() {
-  return <RhythmGame width={500} height={600} />;
+  return <PhysicsGame width={800} height={600} />;
 }
 
 export default App;
