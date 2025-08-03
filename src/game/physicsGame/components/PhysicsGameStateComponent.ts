@@ -7,6 +7,8 @@ export class PhysicsGameStateComponent extends Component {
   public groundHeight: number;
   public isGameRunning: boolean;
   public playerJumps: number = 0;
+  public score: number = 0;
+  public boxesRemaining: number = 0;
 
   constructor(entity: Entity, gameWidth: number, gameHeight: number) {
     super(entity);

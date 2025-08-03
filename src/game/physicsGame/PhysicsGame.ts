@@ -10,6 +10,8 @@ import { PhysicsRenderSystem } from './systems/PhysicsRenderSystem';
 import { PlayerInputSystem } from './systems/PlayerInputSystem';
 import { AnimationSystem } from './systems/AnimationSystem';
 import { PhysicsBodyComponent } from './components/PhysicsBodyComponent';
+import { CollectibleSystem } from './systems/CollectibleSystem';
+import { BoxSpawnSystem } from './systems/BoxSpawnSystem';
 import { PlayerComponent } from './components/PlayerComponent';
 import { PhysicsGameStateComponent } from './components/PhysicsGameStateComponent';
 import { AnimationComponent } from './components/AnimationComponent';
@@ -22,6 +24,8 @@ export class PhysicsGame {
   private renderSystem: PhysicsRenderSystem;
   private inputSystem: PlayerInputSystem;
   private animationSystem: AnimationSystem;
+  private collectibleSystem: CollectibleSystem;
+  private boxSpawnSystem: BoxSpawnSystem;
   private app: PIXI.Application;
   private gameWidth: number;
   private gameHeight: number;
@@ -44,12 +48,17 @@ export class PhysicsGame {
     this.renderSystem = new PhysicsRenderSystem(app);
     this.inputSystem = new PlayerInputSystem();
     this.animationSystem = new AnimationSystem();
+    this.collectibleSystem = new CollectibleSystem();
+    this.boxSpawnSystem = new BoxSpawnSystem(this.physicsSystem);
 
     // Add systems to system manager
+    // Order matters: physics → collectibles/logic → rendering
     this.systemManager.addSystem(this.physicsSystem);
-    this.systemManager.addSystem(this.renderSystem);
+    this.systemManager.addSystem(this.collectibleSystem);
+    this.systemManager.addSystem(this.boxSpawnSystem);
     this.systemManager.addSystem(this.inputSystem);
     this.systemManager.addSystem(this.animationSystem);
+    this.systemManager.addSystem(this.renderSystem);
   }
 
   public async initialize(): Promise<void> {
@@ -61,6 +70,9 @@ export class PhysicsGame {
     // Set game state for systems
     this.renderSystem.setGameStateEntity(gameStateEntity);
     this.inputSystem.setGameStateEntity(gameStateEntity);
+    this.collectibleSystem.setGameStateEntity(gameStateEntity);
+    this.collectibleSystem.setPhysicsWorld(this.physicsSystem.getWorld());
+    this.boxSpawnSystem.setGameStateEntity(gameStateEntity);
 
     // Create ground
     this.createGround(gameState);
@@ -133,6 +145,7 @@ export class PhysicsGame {
 
     // Add to physics world only - ECS will handle adding to systems automatically
     this.physicsSystem.addBody(playerBody, true); // Mark as player body
+    this.collectibleSystem.registerPlayerBody(playerBody);
   }
 
   private createPlatforms(gameState: PhysicsGameStateComponent): void {
@@ -169,6 +182,7 @@ export class PhysicsGame {
       this.physicsSystem.addBody(platformBody);
     });
   }
+
 
   private createBoundaryWalls(): void {
     const wallThickness = 50;

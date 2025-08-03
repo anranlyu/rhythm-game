@@ -15,6 +15,7 @@ export class PhysicsRenderSystem extends System {
     private uiLayer: PIXI.Container;
     private renderedEntities = new Map<Entity, PIXI.Graphics>();
     private jumpText: PIXI.Text | null = null;
+    private scoreText: PIXI.Text | null = null;
     private instructionText: PIXI.Text | null = null;
     private gameStateEntity: Entity | null = null;
     private groundGraphics: PIXI.Graphics | null = null;
@@ -47,6 +48,18 @@ export class PhysicsRenderSystem extends System {
         this.jumpText.x = 10;
         this.jumpText.y = 10;
         this.uiLayer.addChild(this.jumpText);
+
+        this.scoreText = new PIXI.Text({
+            text: 'Score: 0',
+            style: {
+                fontFamily: 'Arial',
+                fontSize: 18,
+                fill: 0xffffff,
+            }
+        });
+        this.scoreText.x = 10;
+        this.scoreText.y = 30;
+        this.uiLayer.addChild(this.scoreText);
 
         this.instructionText = new PIXI.Text({
             text: 'Controls: SPACE or W to jump, A/D or Arrow Keys to move',
@@ -104,12 +117,17 @@ export class PhysicsRenderSystem extends System {
     }
 
     private updateUI(): void {
-        if (!this.jumpText || !this.gameStateEntity) return;
-        
+        if (!this.gameStateEntity) return;
+
         const gameState = this.componentManager.getComponent(this.gameStateEntity, PhysicsGameStateComponent);
-        const jumps = gameState ? gameState.playerJumps : 0;
-        
-        this.jumpText.text = `Jumps: ${jumps}`;
+        if (!gameState) return;
+
+        if (this.jumpText) {
+            this.jumpText.text = `Jumps: ${gameState.playerJumps}`;
+        }
+        if (this.scoreText) {
+            this.scoreText.text = `Score: ${gameState.score}`;
+        }
     }
 
     private renderPhysicsObjects(): void {
