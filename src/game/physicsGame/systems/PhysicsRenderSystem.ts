@@ -16,6 +16,7 @@ export class PhysicsRenderSystem extends System {
     private renderedEntities = new Map<Entity, PIXI.Graphics>();
     private jumpText: PIXI.Text | null = null;
     private scoreText: PIXI.Text | null = null;
+    private boxesText:PIXI.Text | null = null;
     private instructionText: PIXI.Text | null = null;
     private gameStateEntity: Entity | null = null;
     private groundGraphics: PIXI.Graphics | null = null;
@@ -61,17 +62,19 @@ export class PhysicsRenderSystem extends System {
         this.scoreText.y = 30;
         this.uiLayer.addChild(this.scoreText);
 
-        this.instructionText = new PIXI.Text({
-            text: 'Controls: SPACE or W to jump, A/D or Arrow Keys to move',
+        this.boxesText =  
+        this.scoreText = new PIXI.Text({
+            text: 'Boxes: 0',
             style: {
                 fontFamily: 'Arial',
-                fontSize: 14,
-                fill: 0xcccccc,
+                fontSize: 18,
+                fill: 0xffffff,
             }
         });
-        this.instructionText.x = 10;
-        this.instructionText.y = 40;
-        this.uiLayer.addChild(this.instructionText);
+        this.scoreText.x = 10;
+        this.scoreText.y = 50;
+        this.uiLayer.addChild(this.scoreText);
+
     }
 
     public setGameStateEntity(entity: Entity): void {
@@ -127,6 +130,9 @@ export class PhysicsRenderSystem extends System {
         }
         if (this.scoreText) {
             this.scoreText.text = `Score: ${gameState.score}`;
+        }
+        if (this.boxesText) {
+            this.boxesText.text = `Boxes: ${gameState.boxesRemaining}`;
         }
     }
 
