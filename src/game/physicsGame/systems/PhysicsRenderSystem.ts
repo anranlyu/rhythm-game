@@ -16,7 +16,7 @@ export class PhysicsRenderSystem extends System {
     private renderedEntities = new Map<Entity, PIXI.Graphics>();
     private jumpText: PIXI.Text | null = null;
     private scoreText: PIXI.Text | null = null;
-    private boxesText:PIXI.Text | null = null;
+    private boxesText: PIXI.Text | null = null;
     private instructionText: PIXI.Text | null = null;
     private gameStateEntity: Entity | null = null;
     private groundGraphics: PIXI.Graphics | null = null;
@@ -36,8 +36,20 @@ export class PhysicsRenderSystem extends System {
         
         this.app.stage.addChild(this.gameLayer);
         this.app.stage.addChild(this.uiLayer);
+
+        this.boxesText = new PIXI.Text({
+            text: 'Boxes: 0',
+            style: {
+                fontFamily: 'Arial',
+                fontSize: 18,
+                fill: 0xffffff,
+            }
+        });
+        this.boxesText.x = 10;
+        this.boxesText.y = 60;
+        this.uiLayer.addChild(this.boxesText);
         
-        // Create UI text
+        // Create UI text - Jumps
         this.jumpText = new PIXI.Text({
             text: 'Jumps: 0',
             style: {
@@ -50,6 +62,7 @@ export class PhysicsRenderSystem extends System {
         this.jumpText.y = 10;
         this.uiLayer.addChild(this.jumpText);
 
+        // Create UI text - Score
         this.scoreText = new PIXI.Text({
             text: 'Score: 0',
             style: {
@@ -59,21 +72,10 @@ export class PhysicsRenderSystem extends System {
             }
         });
         this.scoreText.x = 10;
-        this.scoreText.y = 30;
+        this.scoreText.y = 35;
         this.uiLayer.addChild(this.scoreText);
 
-        this.boxesText =  
-        this.scoreText = new PIXI.Text({
-            text: 'Boxes: 0',
-            style: {
-                fontFamily: 'Arial',
-                fontSize: 18,
-                fill: 0xffffff,
-            }
-        });
-        this.scoreText.x = 10;
-        this.scoreText.y = 50;
-        this.uiLayer.addChild(this.scoreText);
+
 
     }
 
@@ -148,82 +150,82 @@ export class PhysicsRenderSystem extends System {
                 }
             }
 
-        // Render active physics objects
-        for (const entity of this.entities) {
-            const transform = this.componentManager.getComponent(entity, Transform);
-            const physicsBody = this.componentManager.getComponent(entity, PhysicsBodyComponent);
-            const player = this.componentManager.getComponent(entity, PlayerComponent);
-            const animationComponent = this.componentManager.getComponent(entity, AnimationComponent);
+            // Render active physics objects
+            for (const entity of this.entities) {
+                const transform = this.componentManager.getComponent(entity, Transform);
+                const physicsBody = this.componentManager.getComponent(entity, PhysicsBodyComponent);
+                const player = this.componentManager.getComponent(entity, PlayerComponent);
+                const animationComponent = this.componentManager.getComponent(entity, AnimationComponent);
 
-            if (!transform || !physicsBody) continue;
+                if (!transform || !physicsBody) continue;
 
-            let graphics = this.renderedEntities.get(entity);
-            
-            if (!graphics) {
-                // Create new graphics for this entity
-                graphics = new PIXI.Graphics();
-                this.renderedEntities.set(entity, graphics);
-                this.gameLayer.addChild(graphics);
-            }
-
-            // Clear and redraw
-            graphics.clear();
-            
-            if (player) {
-                // Render player as a colorful rectangle
-                const color = physicsBody.isOnGround() ? 0x00ff00 : 0xffff00; // Green when grounded, yellow when airborne
+                let graphics = this.renderedEntities.get(entity);
                 
-                // Draw player body
-                graphics.beginFill(color);
-                graphics.lineStyle(2, 0x000000);
-                graphics.drawRect(-25, -25, 50, 50); // Player is 50x50 pixels
-                graphics.endFill();
-                
-                // Add a simple face
-                graphics.beginFill(0x000000);
-                graphics.drawCircle(-8, -8, 3);
-                graphics.drawCircle(8, -8, 3);
-                graphics.drawRect(-5, 5, 10, 3);
-                graphics.endFill();
-            } else {
-                // Render other physics objects as gray rectangles
-                const body = physicsBody.body;
-                const bounds = body.bounds;
-                const width = bounds.max.x - bounds.min.x;
-                const height = bounds.max.y - bounds.min.y;
-                
-                graphics.beginFill(0x888888);
-                graphics.lineStyle(1, 0x000000);
-                graphics.drawRect(-width/2, -height/2, width, height);
-                graphics.endFill();
-            }
-            
-            // Update position and rotation
-            graphics.x = transform.position.x;
-            graphics.y = transform.position.y;
-            graphics.rotation = transform.rotation;
-            
-            // Apply animation effects if available
-            if (animationComponent && animationComponent.isAnimating()) {
-                const scaleX = animationComponent.getCurrentScaleX();
-                const scaleY = animationComponent.getCurrentScaleY();
-                const alpha = animationComponent.getCurrentAlpha();
-                const rotation = animationComponent.getCurrentRotation();
-                
-                graphics.scale.set(scaleX, scaleY);
-                graphics.alpha = alpha;
-                graphics.rotation += rotation;
-                
-                // Only log occasionally to avoid spam
-                if (Math.random() < 0.01) { // 1% chance to log
-                    console.log(`Animation - ScaleX: ${scaleX.toFixed(2)}, ScaleY: ${scaleY.toFixed(2)}, Alpha: ${alpha.toFixed(2)}`);
+                if (!graphics) {
+                    // Create new graphics for this entity
+                    graphics = new PIXI.Graphics();
+                    this.renderedEntities.set(entity, graphics);
+                    this.gameLayer.addChild(graphics);
                 }
-            } else {
-                // Reset to default values when not animating
-                graphics.scale.set(1, 1);
-                graphics.alpha = 1;
+
+                // Clear and redraw
+                graphics.clear();
+                
+                if (player) {
+                    // Render player as a colorful rectangle
+                    const color = physicsBody.isOnGround() ? 0x00ff00 : 0xffff00; // Green when grounded, yellow when airborne
+                    
+                    // Draw player body
+                    graphics.beginFill(color);
+                    graphics.lineStyle(2, 0x000000);
+                    graphics.drawRect(-25, -25, 50, 50); // Player is 50x50 pixels
+                    graphics.endFill();
+                    
+                    // Add a simple face
+                    graphics.beginFill(0x000000);
+                    graphics.drawCircle(-8, -8, 3);
+                    graphics.drawCircle(8, -8, 3);
+                    graphics.drawRect(-5, 5, 10, 3);
+                    graphics.endFill();
+                } else {
+                    // Render other physics objects as gray rectangles
+                    const body = physicsBody.body;
+                    const bounds = body.bounds;
+                    const width = bounds.max.x - bounds.min.x;
+                    const height = bounds.max.y - bounds.min.y;
+                    
+                    graphics.beginFill(0x888888);
+                    graphics.lineStyle(1, 0x000000);
+                    graphics.drawRect(-width/2, -height/2, width, height);
+                    graphics.endFill();
+                }
+                
+                // Update position and rotation
+                graphics.x = transform.position.x;
+                graphics.y = transform.position.y;
+                graphics.rotation = transform.rotation;
+                
+                // Apply animation effects if available
+                if (animationComponent && animationComponent.isAnimating()) {
+                    const scaleX = animationComponent.getCurrentScaleX();
+                    const scaleY = animationComponent.getCurrentScaleY();
+                    const alpha = animationComponent.getCurrentAlpha();
+                    const rotation = animationComponent.getCurrentRotation();
+                    
+                    graphics.scale.set(scaleX, scaleY);
+                    graphics.alpha = alpha;
+                    graphics.rotation += rotation;
+                    
+                    // Only log occasionally to avoid spam
+                    if (Math.random() < 0.01) { // 1% chance to log
+                        console.log(`Animation - ScaleX: ${scaleX.toFixed(2)}, ScaleY: ${scaleY.toFixed(2)}, Alpha: ${alpha.toFixed(2)}`);
+                    }
+                } else {
+                    // Reset to default values when not animating
+                    graphics.scale.set(1, 1);
+                    graphics.alpha = 1;
+                }
             }
-        }
         } catch (error) {
             console.error('Error rendering physics objects:', error);
         }
@@ -239,6 +241,16 @@ export class PhysicsRenderSystem extends System {
         if (this.jumpText) {
             this.jumpText.destroy();
             this.jumpText = null;
+        }
+        
+        if (this.scoreText) {
+            this.scoreText.destroy();
+            this.scoreText = null;
+        }
+        
+        if (this.boxesText) {
+            this.boxesText.destroy();
+            this.boxesText = null;
         }
         
         if (this.instructionText) {

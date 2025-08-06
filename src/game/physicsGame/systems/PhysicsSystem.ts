@@ -30,6 +30,10 @@ export class PhysicsSystem extends System {
     this.registerRequiredComponent(PhysicsBodyComponent);
   }
 
+  public getEngine(): Engine {
+    return this.engine;
+  }
+
   private setupCollisionEvents(): void {
     // Listen for collision start events
     Events.on(this.engine, 'collisionStart', (event) => {

@@ -5,13 +5,16 @@ import { PhysicsBodyComponent } from '../components/PhysicsBodyComponent';
 import { CollectibleComponent } from '../components/CollectibleComponent';
 import { PhysicsGameStateComponent } from '../components/PhysicsGameStateComponent';
 import { Entity } from '../../ecs/Entity';
-import { Body, World } from 'matter-js';
+import { Body, World, Events, Engine } from 'matter-js';
 
 export class CollectibleSystem extends System {
   private componentManager: ComponentManager;
   private playerBodies: Set<Body> = new Set();
+  private collectibleBodies: Map<Body, Entity> = new Map();
   private world: World | null = null;
+  private engine: Engine | null = null;
   private gameStateEntity: Entity | null = null;
+  private bodiesToRemove: Set<Body> = new Set();
 
   constructor() {
     super();
@@ -23,8 +26,16 @@ export class CollectibleSystem extends System {
   }
 
   /** Call once when physics system is ready */
-  public setPhysicsWorld(world: World): void {
+  public setPhysicsWorld(world: World, engine: Engine): void {
     this.world = world;
+    this.engine = engine;
+    
+    // Set up collision event listeners
+    if (this.engine) {
+      Events.on(this.engine, 'collisionStart', (event) => {
+        this.handleCollisionStart(event);
+      });
+    }
   }
 
   public setGameStateEntity(entity: Entity): void {
@@ -35,60 +46,107 @@ export class CollectibleSystem extends System {
     this.playerBodies.add(body);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  update(_dt: number): void {
-    if (!this.world || this.playerBodies.size === 0) return;
-    if (!this.gameStateEntity) return;
-
-    const toRemove: { entity: Entity; body: Body }[] = [];
-
-    // Detect collisions first
-    for (const entity of this.entities) {
-      const phys = this.componentManager.getComponent(entity, PhysicsBodyComponent);
-      if (!phys) continue;
-
-      for (const player of this.playerBodies) {
-        if (this.areColliding(player, phys.body)) {
-          toRemove.push({ entity, body: phys.body });
-          break;
+  private handleCollisionStart(event: Matter.IEventCollision<Matter.Engine>): void {
+    const pairs = event.pairs;
+    
+    for (const pair of pairs) {
+      const { bodyA, bodyB } = pair;
+      
+      // Check if one body is player and the other is collectible
+      let playerBody: Body | null = null;
+      let collectibleBody: Body | null = null;
+      
+      if (this.playerBodies.has(bodyA)) {
+        playerBody = bodyA;
+        if (this.collectibleBodies.has(bodyB)) {
+          collectibleBody = bodyB;
+        }
+      } else if (this.playerBodies.has(bodyB)) {
+        playerBody = bodyB;
+        if (this.collectibleBodies.has(bodyA)) {
+          collectibleBody = bodyA;
         }
       }
-    }
-
-    // Process removals after detection loop to avoid mutation during iteration
-    for (const { entity, body } of toRemove) {
-      // Make the body non-blocking immediately so the player doesn’t collide next frame
-      body.isSensor = true;
-      World.remove(this.world, body, true);
-
-      this.componentManager.removeComponent(entity, PhysicsBodyComponent);
-      this.componentManager.removeComponent(entity, CollectibleComponent);
-
-      // Increment score
-      const gameState = this.componentManager.getComponent(
-        this.gameStateEntity!,
-        PhysicsGameStateComponent,
-      );
-      if (gameState) {
-        gameState.score += 1;
-      }
-    }
-
-    // Synchronize boxesRemaining with actual collectible count
-    if (this.gameStateEntity) {
-      const gameState = this.componentManager.getComponent(this.gameStateEntity, PhysicsGameStateComponent);
-      if (gameState) {
-        gameState.boxesRemaining = this.entities.size;
+      
+      // If we have a player-collectible collision, mark for removal
+      if (playerBody && collectibleBody) {
+        console.log('Player collected a box!');
+        this.bodiesToRemove.add(collectibleBody);
       }
     }
   }
 
-  private areColliding(a: Body, b: Body): boolean {
-    return !(
-      a.bounds.max.x < b.bounds.min.x ||
-      a.bounds.min.x > b.bounds.max.x ||
-      a.bounds.max.y < b.bounds.min.y ||
-      a.bounds.min.y > b.bounds.max.y
-    );
+  update(_dt: number): void {
+    if (!this.world) return;
+
+    // Update our tracking of collectible bodies
+    this.updateCollectibleTracking();
+
+    // Process any pending removals from collision events
+    this.processRemovals();
+
+    // Update boxes remaining count
+    this.updateBoxCount();
+  }
+
+  private updateCollectibleTracking(): void {
+    // Clear and rebuild the collectible bodies map
+    this.collectibleBodies.clear();
+    
+    for (const entity of this.entities) {
+      const physicsBody = this.componentManager.getComponent(entity, PhysicsBodyComponent);
+      if (physicsBody && physicsBody.body) {
+        this.collectibleBodies.set(physicsBody.body, entity);
+      }
+    }
+  }
+
+  private processRemovals(): void {
+    if (!this.world || this.bodiesToRemove.size === 0) return;
+
+    for (const body of this.bodiesToRemove) {
+      const entity = this.collectibleBodies.get(body);
+      if (!entity) continue;
+
+      // Make the body non-blocking immediately
+      body.isSensor = true;
+      
+      // Remove from physics world
+      World.remove(this.world, body, true);
+
+      // Remove components to remove entity from systems
+      this.componentManager.removeComponent(entity, PhysicsBodyComponent);
+      this.componentManager.removeComponent(entity, CollectibleComponent);
+
+      // Increment score
+      if (this.gameStateEntity) {
+        const gameState = this.componentManager.getComponent(
+          this.gameStateEntity,
+          PhysicsGameStateComponent
+        );
+        if (gameState) {
+          gameState.score += 1;
+          console.log(`Score: ${gameState.score}`);
+        }
+      }
+
+      // Remove from our tracking
+      this.collectibleBodies.delete(body);
+    }
+
+    // Clear the removal set
+    this.bodiesToRemove.clear();
+  }
+
+  private updateBoxCount(): void {
+    if (this.gameStateEntity) {
+      const gameState = this.componentManager.getComponent(
+        this.gameStateEntity,
+        PhysicsGameStateComponent
+      );
+      if (gameState) {
+        gameState.boxesRemaining = this.entities.size;
+      }
+    }
   }
 }

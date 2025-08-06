@@ -61,34 +61,43 @@ export class PhysicsGame {
     this.systemManager.addSystem(this.renderSystem);
   }
 
+
+
   public async initialize(): Promise<void> {
-    // Create game state entity
-    const gameStateEntity = this.entityManager.createEntity();
-    const gameState = new PhysicsGameStateComponent(gameStateEntity, this.gameWidth, this.gameHeight);
-    this.componentManager.addComponent(gameStateEntity, gameState);
+      // Create game state entity
+      const gameStateEntity = this.entityManager.createEntity();
+      const gameState = new PhysicsGameStateComponent(gameStateEntity, this.gameWidth, this.gameHeight);
+      this.componentManager.addComponent(gameStateEntity, gameState);
 
-    // Set game state for systems
-    this.renderSystem.setGameStateEntity(gameStateEntity);
-    this.inputSystem.setGameStateEntity(gameStateEntity);
-    this.collectibleSystem.setGameStateEntity(gameStateEntity);
-    this.collectibleSystem.setPhysicsWorld(this.physicsSystem.getWorld());
-    this.boxSpawnSystem.setGameStateEntity(gameStateEntity);
+      // Set game state for systems
+      this.renderSystem.setGameStateEntity(gameStateEntity);
+      this.inputSystem.setGameStateEntity(gameStateEntity);
+      
+      // Updated: Pass both world AND engine to CollectibleSystem
+      this.collectibleSystem.setGameStateEntity(gameStateEntity);
+      this.collectibleSystem.setPhysicsWorld(
+          this.physicsSystem.getWorld(), 
+          this.physicsSystem.getEngine()  // Add this
+      );
+      
+      this.boxSpawnSystem.setGameStateEntity(gameStateEntity);
 
-    // Create ground
-    this.createGround(gameState);
+      // Create ground
+      this.createGround(gameState);
 
-    // Create player
-    this.createPlayer(gameState);
+      // Create player
+      this.createPlayer(gameState);
 
-    // Create some platforms for jumping
-    this.createPlatforms(gameState);
+      // Create some platforms for jumping
+      this.createPlatforms(gameState);
 
-    // Create invisible walls to prevent player from leaving screen
-    this.createBoundaryWalls();
+      // Create invisible walls to prevent player from leaving screen
+      this.createBoundaryWalls();
 
-    console.log('Physics Game initialized successfully!');
+      console.log('Physics Game initialized successfully!');
   }
 
+  
   private createGround(gameState: PhysicsGameStateComponent): void {
     const groundEntity = this.entityManager.createEntity();
     
