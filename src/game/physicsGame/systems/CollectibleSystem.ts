@@ -30,7 +30,7 @@ export class CollectibleSystem extends System {
     this.world = world;
     this.engine = engine;
     
-    // Set up collision event listeners
+
     if (this.engine) {
       Events.on(this.engine, 'collisionStart', (event) => {
         this.handleCollisionStart(event);
@@ -52,7 +52,7 @@ export class CollectibleSystem extends System {
     for (const pair of pairs) {
       const { bodyA, bodyB } = pair;
       
-      // Check if one body is player and the other is collectible
+      // Check 
       let playerBody: Body | null = null;
       let collectibleBody: Body | null = null;
       
@@ -90,7 +90,7 @@ export class CollectibleSystem extends System {
   }
 
   private updateCollectibleTracking(): void {
-    // Clear and rebuild the collectible bodies map
+
     this.collectibleBodies.clear();
     
     for (const entity of this.entities) {

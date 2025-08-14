@@ -228,10 +228,7 @@ export class PhysicsRenderSystem extends System {
             this.jumpText = null;
         }
         
-        if (this.scoreText) {
-            this.scoreText.destroy();
-            this.scoreText = null;
-        }
+
         
         if (this.boxesText) {
             this.boxesText.destroy();

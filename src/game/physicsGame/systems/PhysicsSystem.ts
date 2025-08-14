@@ -117,7 +117,7 @@ export class PhysicsSystem extends System {
     return isAbove && isAligned;
   }
 
-  private handlePlayerCollisionEnd(playerBody: Body, otherBody: Body): void {
+  private handlePlayerCollisionEnd(playerBody: Body, _otherBody: Body): void {
     // Check if player is no longer touching any ground surfaces
     const playerEntity = this.findEntityByBody(playerBody);
     if (playerEntity) {
@@ -181,7 +181,7 @@ export class PhysicsSystem extends System {
     World.remove(this.world, body);
   }
 
-  update(deltaTime: number): void {
+  update(_deltaTime: number): void {
     // Use fixed timestep for consistent physics - Matter.js expects ~16.67ms (60fps)
     const fixedTimeStep = 16.67;
     Engine.update(this.engine, fixedTimeStep);

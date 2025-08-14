@@ -34,7 +34,7 @@ export class BoxSpawnSystem extends System {
     if (!gameState) return;
 
     if (gameState.boxesRemaining === 0) {
-      // spawn 5 new boxes
+
 
       for (let i = 0; i < 5; i++) {
         const boxEntity = this.entityManager.createEntity();
