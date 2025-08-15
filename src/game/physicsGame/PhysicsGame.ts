@@ -19,12 +19,12 @@ export class PhysicsGame {
   private physicsSystem: PhysicsSystem;
   private renderSystem: PhysicsRenderSystem;
   private inputSystem: PlayerInputSystem;
-  private app: PIXI.Application;
+  // private app: PIXI.Application; // Stored but not currently used
   private gameWidth: number;
   private gameHeight: number;
 
   constructor(app: PIXI.Application) {
-    this.app = app;
+    // this.app = app; // Store reference if needed later
     this.gameWidth = app.screen.width;
     this.gameHeight = app.screen.height;
 
@@ -163,7 +163,7 @@ export class PhysicsGame {
     });
   }
 
-  private createBoundaryWalls(gameState: PhysicsGameStateComponent): void {
+  private createBoundaryWalls(_gameState: PhysicsGameStateComponent): void {
     const wallThickness = 50;
     
     // Left wall
