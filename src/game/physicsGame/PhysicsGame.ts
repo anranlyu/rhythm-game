@@ -22,12 +22,10 @@ export class PhysicsGame {
   private renderSystem: PhysicsRenderSystem;
   private inputSystem: PlayerInputSystem;
   private animationSystem: AnimationSystem;
-  private app: PIXI.Application;
   private gameWidth: number;
   private gameHeight: number;
 
   constructor(app: PIXI.Application) {
-    this.app = app;
     this.gameWidth = app.screen.width;
     this.gameHeight = app.screen.height;
 
