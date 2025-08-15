@@ -10,10 +10,11 @@ interface PhysicsGameProps {
 }
 
 export const PhysicsGame = ({ width, height }: PhysicsGameProps) => {
-  const initializeGame = (app: PIXI.Application) => {
-    const entityManager = EntityManager.getInstance();
-    const componentManager = ComponentManager.getInstance();
-    const systemManager = SystemManager.getInstance();
+  const initializeGame = (_app: PIXI.Application) => {
+    // Initialize the managers for future use
+    EntityManager.getInstance();
+    ComponentManager.getInstance();
+    SystemManager.getInstance();
   };
 
   const updateGame = (deltaTime: number) => {
